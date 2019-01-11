@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include <jni.h>
 #include <android/log.h>
 #include "tweetnacl.h"
@@ -21,12 +22,24 @@ typedef i64                 gf[16];
  *
  */
 void release(JNIEnv *env,jbyteArray jbytes,u8 *bytes,u64 N,int discard,jboolean copied) {
-	if (bytes) {
+	/*if (bytes) {
 		(*env)->ReleaseByteArrayElements(env,jbytes,bytes,discard ? JNI_ABORT : 0);
 	}
 
 	if (copied) {
 		memset(bytes,0,N);
+	} */
+
+	if (bytes) {
+		if (!discard) {
+            (*env)->ReleaseByteArrayElements(env, jbytes, bytes, JNI_COMMIT);
+        }
+
+		if (copied) {
+			memset(bytes,0,N);
+		}
+
+		(*env)->ReleaseByteArrayElements(env,jbytes,bytes, JNI_ABORT);
 	}
 }
 
@@ -36,10 +49,23 @@ void release(JNIEnv *env,jbyteArray jbytes,u8 *bytes,u64 N,int discard,jboolean 
 //  compiler optimizations, but John Regehr thinks it probably
 //  will in most cases, so...)
 
-static void * (* const volatile memset_ptr)(void *, int, size_t) = memset;
+// static void * (* const volatile memset_ptr)(void *, int, size_t) = memset;
 
 static void secure_memzero(void * p, size_t len) {
-	(memset_ptr)(p, 0, len);
+	//(memset_ptr)(p, 0, len);
+    memset_secure(p, 0, len);
+}
+
+// use volatile to prevent optimizations
+
+int memset_secure(void *v, int c, size_t n) {
+    if (v == NULL) return EINVAL;
+
+    volatile unsigned char *p = v;
+    while (n--) {
+        *p++ = c;
+    }
+    return 0;
 }
 
 /** jniCryptoBoxKeyPair

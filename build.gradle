@@ -1,0 +1,59 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+    }
+    sourceSets {
+        main {
+            java {
+	    	/* exclude the Z version */
+                exclude '**/TweetNaClZ.java'
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            ndk {
+                abiFilters /*"arm64-v8a", */"armeabi-v7a", "x86", "armeabi"
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt') //, 'proguard-project-optimize.txt'
+        }
+        release {
+            ndk {
+                abiFilters /*"arm64-v8a", */"armeabi-v7a", "x86", "armeabi"
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt') //, 'proguard-project-optimize.txt'
+        }
+
+    }
+    productFlavors {
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+    externalNativeBuild {
+        ndkBuild {
+            // Tells Gradle to find the root ndk-build script in the same
+            // directory as the module's build.gradle file. Gradle requires this
+            // build script to add your ndk-build project as a build dependency and
+            // pull your native sources into your Android project.
+            path "Android.mk"
+        }
+    }
+}
+
+dependencies {
+    // compile fileTree(include: ['*.jar'], dir: 'libs')
+    // androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    //    exclude group: 'com.android.support', module: 'support-annotations'
+    //})
+    // compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    // testCompile 'junit:junit:4.12'
+}
