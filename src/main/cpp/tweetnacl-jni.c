@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <jni.h>
+#include <errno.h>
 #include <android/log.h>
 #include "tweetnacl.h"
 
